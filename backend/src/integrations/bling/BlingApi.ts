@@ -137,7 +137,17 @@ async function blingFetch<T>(
 
                 try {
                     const errorObj = JSON.parse(text);
-                    errorMessage = errorObj?.error?.message || errorMessage;
+                    const err = errorObj?.error;
+
+                    const fields = Array.isArray(err?.fields)
+                        ? err.fields
+                            .map((f: any) => f?.msg ?? f?.message ?? JSON.stringify(f))
+                            .join(' | ')
+                        : '';
+
+                    errorMessage = [err?.message || errorMessage, err?.description, fields]
+                        .filter(Boolean)
+                        .join(' — ');
                 } catch {
                     errorMessage = `${errorMessage} - ${text.substring(0, 100)}`;
                 }
@@ -227,6 +237,29 @@ export async function getContactDetail(
     }
 }
 
+export async function searchContacts(
+    token: string,
+    query: string,
+): Promise<BlingContact[]> {
+    const data = await blingFetch<{ data: BlingContact[] }>(
+        token,
+        '/contatos',
+        { method: 'GET' },
+        { pesquisa: query, limit: '10' },
+    );
+    return data?.data ?? [];
+};
+
+export async function postContact(
+    token: string,
+    payload: object,
+): Promise<{ data?: { id: number } }> {
+    return blingFetch(token, '/contatos', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
 export async function postSalesOrder(
     token: string,
     payload: object,
@@ -236,3 +269,4 @@ export async function postSalesOrder(
         body: JSON.stringify(payload),
     });
 }
+
