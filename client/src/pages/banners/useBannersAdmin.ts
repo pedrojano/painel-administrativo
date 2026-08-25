@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { api, ApiError } from "@/lib/api/client";
-import { emptyHomeBanners, extractYoutubeId } from "./mappers";
+import { emptyHomeBanners } from "./mappers";
 import type { HomeBannersSettings } from "./types";
 
 const KEYS = {
@@ -27,13 +28,19 @@ export function useHomeBannersAdmin() {
                 map[row.key] = row.value;
             });
 
+            const storedVideo = map[KEYS.videoSection];
+
             setSettings({
                 intermediateBanner: map[KEYS.intermediateBanner] ?? {
                     src: "",
                     alt: "",
                     href: "",
                 },
-                videoSection: map[KEYS.videoSection] ?? { title: "", videoId: "" },
+                videoSection: {
+                    desktopUrl: storedVideo?.desktopUrl ?? "",
+                    mobileUrl: storedVideo?.mobileUrl ?? "",
+                    href: storedVideo?.href ?? "",
+                },
                 imageGrid: Array.isArray(map[KEYS.imageGrid]?.images)
                     ? map[KEYS.imageGrid]
                     : { images: [] },
@@ -57,16 +64,34 @@ export function useHomeBannersAdmin() {
             intermediateBanner: { ...prev.intermediateBanner, ...patch },
         }));
 
-    const setVideoTitle = (title: string) =>
+    const setVitrineHref = (href: string) =>
         setSettings((prev) => ({
             ...prev,
-            videoSection: { ...prev.videoSection, title },
+            videoSection: { ...prev.videoSection, href },
         }));
 
-    const setVideoUrl = (raw: string) =>
+    const uploadVitrineVideo = async (
+        kind: "desktopUrl" | "mobileUrl",
+        file: File,
+    ) => {
+        setUploading(true);
+        try {
+            const url = await uploadTo(file, "Vitrine");
+            setSettings((prev) => ({
+                ...prev,
+                videoSection: { ...prev.videoSection, [kind]: url },
+            }));
+        } catch (err) {
+            toast.error(err instanceof ApiError ? err.message : "Falha no upload");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const clearVitrineVideo = (kind: "desktopUrl" | "mobileUrl") =>
         setSettings((prev) => ({
             ...prev,
-            videoSection: { ...prev.videoSection, videoId: extractYoutubeId(raw) },
+            videoSection: { ...prev.videoSection, [kind]: "" },
         }));
 
     const addGridImage = () =>
@@ -110,7 +135,7 @@ export function useHomeBannersAdmin() {
             const url = await uploadTo(file, "Banners/Banner Inter");
             setIntermediateBanner({ src: url });
         } catch (err) {
-            alert(err instanceof ApiError ? err.message : "Falha no upload");
+            toast.error(err instanceof ApiError ? err.message : "Falha no upload");
         } finally {
             setUploading(false);
         }
@@ -122,7 +147,7 @@ export function useHomeBannersAdmin() {
             const url = await uploadTo(file, "Banners/Grid Images");
             updateGridImage(index, { src: url });
         } catch (err) {
-            alert(err instanceof ApiError ? err.message : "Falha no upload");
+            toast.error(err instanceof ApiError ? err.message : "Falha no upload");
         } finally {
             setUploading(false);
         }
@@ -150,8 +175,9 @@ export function useHomeBannersAdmin() {
         saved,
         uploading,
         setIntermediateBanner,
-        setVideoTitle,
-        setVideoUrl,
+        setVitrineHref,
+        uploadVitrineVideo,
+        clearVitrineVideo,
         addGridImage,
         updateGridImage,
         removeGridImage,
