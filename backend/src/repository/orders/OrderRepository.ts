@@ -1,4 +1,4 @@
-import { desc, eq, sql, and, inArray } from 'drizzle-orm';
+import { desc, eq, sql, and, inArray, isNull, ne } from 'drizzle-orm';
 import { db } from '../../config/db';
 import { orders, orderItems, productsSkus, coupons, customers, products } from '../../config/db/schema';
 
@@ -209,6 +209,18 @@ export function findItemsForBling(orderId: string) {
         .leftJoin(products, eq(orderItems.productId, products.id))
         .leftJoin(productsSkus, eq(orderItems.skuId, productsSkus.id))
         .where(eq(orderItems.orderId, orderId));
+}
+
+export function findPaidOrdersWithoutBling() {
+    return db.query.orders.findMany({
+        where: and(
+            eq(orders.paymentStatus, 'paid'),
+            isNull(orders.blingOrderId),
+            ne(orders.status, 'cancelled'),
+        ),
+        orderBy: [desc(orders.createdAt)],
+        limit: 20,
+    });
 }
 
 export async function saveBlingOrderId(orderId: string, blingOrderId: number) {

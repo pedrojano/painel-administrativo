@@ -10,8 +10,9 @@ import { CharacteristicsPage } from "./pages/characteristics/ui/CharacteristicsP
 import { CategoryBoard } from "./pages/categories/ui/CategoryBoard";
 import { StockPage } from "./pages/stock/ui/StockPage";
 import { CouponsPage } from "./pages/coupons/ui/CouponsPage";
-import { BannersPage } from '@/pages/banners/ui/BannersPage';
+import { BannersPage } from './pages/banners/ui/BannersPage';
 import { IntegracoesPage } from "./pages/integrations/ui/IntegracoesPage";
+import { CartsPage } from "./pages/carts/ui/CartsPage";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/cupons" element={<CouponsPage />} />
           <Route path="/slides" element={<BannersPage />} />
           <Route path="/integracoes" element={<IntegracoesPage />} />
+          <Route path="/carrinhos" element={<CartsPage />} />
           <Route path="*" element={<UnderConstructionPage />} />
         </Route>
       </Route>
