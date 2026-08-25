@@ -29,8 +29,9 @@ export type IntermediateBannerInput = {
 };
 
 export type VideoSectionInput = {
-  title: string;
-  videoId: string;
+  desktopUrl: string;
+  mobileUrl: string;
+  href: string;
 };
 
 export type ImageGridItemInput = {
