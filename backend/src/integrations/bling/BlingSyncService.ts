@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { db } from '../../config/db';
 import { blingSyncLog, categories, products, productsColors, productsSkus } from '../../config/db/schema';
 import * as BlingApi from './BlingApi';
@@ -47,7 +47,7 @@ async function ensureBlingCategory(): Promise<string> {
 
 async function resolveColorId(name: string): Promise<string> {
     const existing = await db.query.productsColors.findFirst({
-        where: eq(productsColors.name, name),
+        where: sql`lower(${productsColors.name}) = lower(${name})`,
     });
     if (existing) return existing.id;
 

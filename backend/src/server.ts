@@ -15,6 +15,8 @@ import { adminHeroSlideRoutes } from './routes/hero/HeroSlideRoutes';
 import { adminSiteSettingsRoutes } from './routes/settings/SiteSettings';
 import { adminUploadRoutes } from './routes/upload/UploadRouter';
 import { adminBlingRoutes } from './routes/integrations/BlingRoutes';
+import { startBlingAutoPush } from './integrations/bling/BlingAutoPush';
+import { adminCartRoutes } from './routes/carts/CartRouter';
 
 const app = express();
 
@@ -45,6 +47,7 @@ app.use('/api/admin/settings', adminSiteSettingsRoutes);
 app.use('/api/admin/hero-slides', adminHeroSlideRoutes);
 app.use('/api/admin/upload', adminUploadRoutes);
 app.use('/api/admin/bling', adminBlingRoutes);
+app.use('/api/admin/carts', adminCartRoutes);
 
 
 app.get('/health', (_req, res) => {
@@ -57,5 +60,7 @@ const HOST = '0.0.0.0';
 app.listen(PORT, HOST, () => {
   console.log(`🚀 Server running on http://${HOST}:${PORT}`);
 });
+
+startBlingAutoPush();
 
 export default app;
