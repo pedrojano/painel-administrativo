@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { api, ApiError } from "@/lib/api/client";
+import { toast } from "sonner";
+import { useConfirm } from "../../components/confirm/ConfirmProvider";
+import { api, ApiError } from "../../lib/api/client";
 import { emptyColor } from "./domain";
 import { mapApiColor, toApiColor } from "./mappers";
 import type { Color, ColorInput } from "./types";
+
+const PAGE_SIZE = 40;
 
 export function useColorsAdmin() {
     const [colors, setColors] = useState<Color[]>([]);
@@ -12,6 +16,11 @@ export function useColorsAdmin() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [search, setSearch] = useState("");
+    const [onlyMissingImage, setOnlyMissingImage] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+    const confirm = useConfirm();
 
     const load = useCallback(async () => {
         try {
@@ -28,6 +37,23 @@ export function useColorsAdmin() {
         load();
     }, [load]);
 
+    useEffect(() => {
+        setVisibleCount(PAGE_SIZE);
+    }, [search, onlyMissingImage]);
+
+    const term = search.trim().toLowerCase();
+    const filtered = colors.filter((c) => {
+        if (onlyMissingImage && c.image_url) return false;
+        if (term && !c.name.toLowerCase().includes(term)) return false;
+        return true;
+    });
+
+    const visible = filtered.slice(0, visibleCount);
+    const hasMore = filtered.length > visibleCount;
+    const showMore = () => setVisibleCount((v) => v + PAGE_SIZE);
+
+    const missingImageCount = colors.filter((c) => !c.image_url).length;
+
     const openNew = () => setEditing(emptyColor());
     const openEdit = (color: Color) => setEditing({ ...color });
 
@@ -37,7 +63,7 @@ export function useColorsAdmin() {
             const { urls } = await api.upload("/api/admin/upload?folder=Colors", [file]);
             setEditing((prev) => (prev ? { ...prev, image_url: urls[0] } : prev));
         } catch (err) {
-            alert(err instanceof ApiError ? err.message : "Falha no upload");
+            toast.error(err instanceof ApiError ? err.message : "Falha no upload");
         } finally {
             setUploading(false);
         }
@@ -56,24 +82,39 @@ export function useColorsAdmin() {
             setEditing(null);
             load();
         } catch (err) {
-            alert(err instanceof ApiError ? err.message : "Erro ao salvar cor");
+            toast.error(err instanceof ApiError ? err.message : "Erro ao salvar cor");
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Excluir esta cor?")) return;
+        if (!(await confirm({
+            title: "Excluir cor",
+            message: "Produtos que usam essa cor podem perder a variação. Excluir mesmo assim?",
+            confirmLabel: "Excluir",
+            danger: true,
+        }))) return;
+
         try {
             await api.delete(`/api/admin/colors/${id}`);
         } catch (err) {
-            alert(err instanceof ApiError ? err.message : "Erro ao excluir");
+            toast.error(err instanceof ApiError ? err.message : "Erro ao excluir");
         }
         load();
     };
 
     return {
         colors,
+        filtered,
+        visible,
+        hasMore,
+        showMore,
+        missingImageCount,
+        search,
+        setSearch,
+        onlyMissingImage,
+        setOnlyMissingImage,
         editing,
         setEditing,
         loading,

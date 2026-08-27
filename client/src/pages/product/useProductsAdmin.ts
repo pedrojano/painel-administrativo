@@ -1,25 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, ApiError } from "@/lib/api/client";
-import {
-  buildTree,
-  findAncestor,
-  listGrandchildCategories,
-} from "@/lib/categories";
+import { buildTree, findAncestor, listGrandchildCategories } from "@/lib/categories";
 import type { CategoryRow } from "@/lib/categories";
-import {
-  buildProductPayload,
-  emptyProduct,
-  filterAndSortProducts,
-} from "./domain";
+import { buildProductPayload, emptyProduct, filterAndSortProducts } from "./domain";
 import { mapApiCategory, mapApiColor, mapApiProduct, toApiProduct } from "./mappers";
-import type {
-  AdminProduct,
-  Color,
-  ColorImages,
-  ProductInput,
-  ProductSortKey,
-  Sku,
-} from "./types";
+import { useConfirm } from "@/components/confirm/ConfirmProvider";
+import type { AdminProduct, Color, ColorImages, ProductInput, ProductSortKey, Sku } from "./types";
 
 export function useProductsAdmin() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
@@ -50,7 +36,7 @@ export function useProductsAdmin() {
   const [selectedCategoryFilhoId, setSelectedCategoryFilhoId] = useState<
     string | null
   >(null);
-
+  const confirm = useConfirm();
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -134,7 +120,14 @@ export function useProductsAdmin() {
   };
 
   const bulkDelete = async () => {
-    if (!confirm(`Excluir ${selected.size} Produtos(s)?`)) return;
+
+    if (!(await confirm({
+      title: "Excluir produtos",
+      message: `${selected.size} produto(s) serão excluídos permanentemente.`,
+      confirmLabel: "Excluir todos",
+      danger: true
+
+    }))) return;
     try {
       await api.post("/api/admin/products/bulk", {
         ids: [...selected],
@@ -328,7 +321,7 @@ export function useProductsAdmin() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Excluir este Produto?")) return;
+    if (!(await confirm({ title: "Excluir produto", message: "Este Produto será excluido permanentemente.", confirmLabel: "Excluir", danger: true }))) return;
     try {
       await api.delete(`/api/admin/products/${id}`);
     } catch (err) {

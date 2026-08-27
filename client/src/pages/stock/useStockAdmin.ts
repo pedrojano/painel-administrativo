@@ -29,6 +29,7 @@ export function useStockAdmin() {
                         .map((p) => ({
                             id: p.id,
                             name: p.name,
+                            code: p.code,
                             category: p.categoryId ? (catNameById.get(p.categoryId) ?? "") : "",
                         })),
                 );
@@ -56,6 +57,7 @@ export function useStockAdmin() {
                     id: s.id,
                     size: s.size,
                     color: s.colorId ? (colorNameById.get(s.colorId) ?? "?") : null,
+                    code: s.code,
                     stock_qty: s.stockQty ?? 0,
                     reserved_qty: s.reservedQty ?? 0,
                 }))
