@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "@/auth/LoginPage";
 import { ProtectedRoute } from "@/components/ProtectedRouter";
 import { AdminLayout } from "@/components/AdminLayout";
-import { DashboardPage } from "@/pages/dashboard/DashboardPage";
+import { DashboardPage } from "@/pages/dashboard/ui/DashboardPage";
 import { ProductsPage } from "@/pages/product/ui/ProductsPage";
 import { OrdersPage } from "@/pages/orders/ui/OrdersPage";
 import { UnderConstructionPage } from "@/pages/UnderConstructionPage";
@@ -13,7 +13,10 @@ import { CouponsPage } from "./pages/coupons/ui/CouponsPage";
 import { BannersPage } from './pages/banners/ui/BannersPage';
 import { IntegracoesPage } from "./pages/integrations/ui/IntegracoesPage";
 import { CartsPage } from "./pages/carts/ui/CartsPage";
-
+import { VendasPage } from "./pages/vendas/ui/VendasPage";
+import { CustomersPage } from "./pages/customers/ui/CustomersPage";
+import { VisitasPage } from "./pages/visitas/ui/VisitasPage";
+import { FretePage } from "./pages/frete/ui/FretePage";
 export default function App() {
   return (
     <Routes>
@@ -32,6 +35,10 @@ export default function App() {
           <Route path="/slides" element={<BannersPage />} />
           <Route path="/integracoes" element={<IntegracoesPage />} />
           <Route path="/carrinhos" element={<CartsPage />} />
+          <Route path="/vendas" element={<VendasPage />} />
+          <Route path="/clientes" element={<CustomersPage />} />
+          <Route path="/visitas" element={<VisitasPage />} />
+          <Route path="/frete" element={<FretePage />} />
           <Route path="*" element={<UnderConstructionPage />} />
         </Route>
       </Route>
