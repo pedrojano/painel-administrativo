@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
 import {
+    BarChart,
     BarChart2, BookOpen, Camera, ChevronRight, Image, LayoutDashboard,
     LogOut, Mail, Megaphone, Menu, Package, Palette, Settings,
     ShoppingBag, ShoppingCart, Star, Tag, Truck, Users, Users2, X, Zap,
@@ -18,14 +19,16 @@ const SITE_URL = import.meta.env.VITE_SITE_URL ?? "http://localhost:3000";
 
 const navItems: NavEntry[] = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/vendas", label: "Vendas", icon: BarChart2 },
+
     {
-        label: "Pedidos", icon: ShoppingCart,
+        label: "Vendas", icon: BarChart2,
         children: [
+            { href: "/vendas", label: "Vendas", icon: BarChart },
             { href: "/pedidos", label: "Pedidos", icon: ShoppingCart },
             { href: "/carrinhos", label: "Carrinhos Abandonados", icon: ShoppingBag },
-        ],
+        ]
     },
+
     { href: "/clientes", label: "Clientes", icon: Users },
     {
         label: "Produtos", icon: Package,

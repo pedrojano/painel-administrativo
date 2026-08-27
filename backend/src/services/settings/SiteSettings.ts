@@ -4,6 +4,7 @@ export const ALLOWED_KEYS = [
     'home_intermediate_banner',
     'home_video_section',
     'home_image_grid',
+    'shipping_config',
 ] as const;
 
 export function listSettings() {
